@@ -15,8 +15,8 @@ import 'telephone.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();  // Initialisation de Firebase
-  runApp(const Route());  // Lancement de l'application avec la route principale
+  await Firebase.initializeApp(); // Initialisation de Firebase
+  runApp(const Route()); // Lancement de l'application avec la route principale
 }
 
 class Route extends StatefulWidget {
@@ -33,17 +33,21 @@ class _RouteState extends State<Route> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false, // Désactiver le bandeau de debug
-      initialRoute: currentUser != null ? '/acceuil' : '/', // Rediriger en fonction de l'état de connexion
+      initialRoute: currentUser != null
+          ? '/acceuil'
+          : '/', // Rediriger en fonction de l'état de connexion
       routes: {
         '/': (context) => const Connexion(),
-        '/leading': (context) => NouvelleDeclaration(),// Route pour la page de connexion
+        '/leading': (context) =>
+            NouvelleDeclaration(), // Route pour la page de connexion
         '/acceuil': (context) => AccueilPage(), // Route pour la page d'accueil
         '/compte': (context) => ComptePage(),
         '/notification': (context) => NotificationPage(),
         '/declaration': (context) => NouvelleDeclaration(),
         '/rmessage': (context) => MessagingcolectPage(),
         '/message': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>;
           return MessagingPage(
             objectId: args['objectid'] as String,
             userId: args['userid'] as String,
@@ -67,16 +71,24 @@ class _ConnexionState extends State<Connexion> {
     final screenwidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.black),  // AppBar avec fond noir
+      appBar: AppBar(backgroundColor: Colors.black), // AppBar avec fond noir
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        color: Colors.black,  // Fond de la page en noir
+        color: Colors.black, // Fond de la page en noir
         child: Center(
           child: Column(
             children: [
               SizedBox(height: 20),
-              Center(child: Text(' Found me ',style: TextStyle(fontSize:20,fontWeight:FontWeight.bold,color:Colors.white),),),
+              Center(
+                child: Text(
+                  ' Find Me ',
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white),
+                ),
+              ),
               SizedBox(height: 20),
 
               // Affichage du logo au centre de l'écran
@@ -103,20 +115,34 @@ class _ConnexionState extends State<Connexion> {
                 children: [
                   // Connexion avec Facebook
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(padding: EdgeInsets.fromLTRB(20, 0, 20, 0)),
                       SizedBox(
                         width: screenwidth * 0.75,
-                        height: screenheight * 0.03,
+                        height: screenheight * 0.05,
                         child: ElevatedButton(
+                          style: ButtonStyle(
+                              padding:
+                                  WidgetStateProperty.all<EdgeInsetsGeometry>(
+                                      const EdgeInsets.symmetric(vertical: 5))),
                           onPressed: () async {
-                            Navigator.of(context).pushReplacementNamed('/telephone');
+                            Navigator.of(context)
+                                .pushReplacementNamed('/telephone');
                           },
                           child: Center(
                             child: Row(
-                              children: [Padding(padding: EdgeInsets.fromLTRB(0, 50, 0, 50)),
-                                Image(image: AssetImage("assets/images/face_.png")),
-                                Text(" Se connecter avec Facebook", style: TextStyle(fontSize: 14)),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                    padding: EdgeInsets.fromLTRB(0, 50, 0, 50)),
+                                Image(
+                                    image:
+                                        AssetImage("assets/images/face_.png")),
+                                Text(" Se connecter avec Facebook",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ),
@@ -127,30 +153,47 @@ class _ConnexionState extends State<Connexion> {
                   SizedBox(height: screenheight * 0.05),
                   // Connexion avec Google
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(padding: EdgeInsets.fromLTRB(20, 0, 20, 0)),
                       SizedBox(
                         width: screenwidth * 0.75,
-                        height: screenheight * 0.03,
+                        height: screenheight * 0.05,
                         child: ElevatedButton(
+                          style: ButtonStyle(
+                              padding:
+                                  WidgetStateProperty.all<EdgeInsetsGeometry>(
+                                      const EdgeInsets.symmetric(vertical: 5))),
                           onPressed: () async {
                             final user = await signInWithGoogle();
                             if (user != null) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Bienvenue, ${user.displayName}!")),
+                                SnackBar(
+                                    content: Text(
+                                        "Bienvenue, ${user.displayName}!")),
                               );
-                              Navigator.of(context).pushReplacementNamed('/acceuil', arguments: {"data": "Wenceslas"});
+                              Navigator.of(context).pushReplacementNamed(
+                                  '/acceuil',
+                                  arguments: {"data": "Wenceslas"});
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Connexion annulée ou échouée.")),
+                                SnackBar(
+                                    content:
+                                        Text("Connexion annulée ou échouée.")),
                               );
                             }
                           },
                           child: Center(
                             child: Row(
-                              children: [Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 10)),
-                                Image(image: AssetImage("assets/images/google.png")),
-                                Text(" Se connecter avec Google", style: TextStyle(fontSize: 16,)),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image(
+                                    image:
+                                        AssetImage("assets/images/google.png")),
+                                Text(" Se connecter avec Google",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ),
@@ -165,10 +208,12 @@ class _ConnexionState extends State<Connexion> {
                     child: Text(
                       "Vous avez deja un compte ? Se connecter",
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        decoration: TextDecoration.underline,decorationColor: Colors.white // Ajout de la ligne soulignée
-                      ),
+                          color: Colors.white,
+                          fontSize: 16,
+                          decoration: TextDecoration.underline,
+                          decorationColor:
+                              Colors.white // Ajout de la ligne soulignée
+                          ),
                     ),
                   ),
                   SizedBox(height: screenheight * 0.03),
