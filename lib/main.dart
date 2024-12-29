@@ -204,7 +204,10 @@ class _ConnexionState extends State<Connexion> {
                   SizedBox(height: screenheight * 0.05),
                   // Texte pour rediriger vers la page de connexion
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushReplacementNamed('/acceuil',
+                          arguments: {"data": "Wenceslas"});
+                    },
                     child: Text(
                       "Vous avez deja un compte ? Se connecter",
                       style: TextStyle(
