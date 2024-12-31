@@ -26,30 +26,51 @@ class DeclarationCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: onTap,
-              child: Row(
-                children: [
-                  // Affichage de l'image
-                  (imageUrl != null && imageUrl.isNotEmpty)
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: Image.network(
-                            imageUrl,
-                            width: 160,
-                            height: 320,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : const Icon(Icons.image_not_supported, size: 60),
-                  const SizedBox(width: 16.0),
-                  // Texte des détails essentiels
-                  Expanded(child: getDeclarationData()),
-                  const Icon(Icons.arrow_forward_ios, size: 16),
-                ],
-              ),
+            // Affichage des informations essentielles (au-dessus de l'image)
+            getDeclarationData(),
+
+            const SizedBox(
+                height: 8.0), // Espacement entre les infos et l'image
+
+            // Affichage de l'image en bas
+            if (imageUrl != null && imageUrl.isNotEmpty)
+              GestureDetector(
+                onTap: () {
+                  // Ouvre l'image en grand
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                        child: Image.network(imageUrl, fit: BoxFit.cover),
+                      );
+                    },
+                  );
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12.0),
+                  child: Image.network(
+                    imageUrl,
+                    width: double.infinity,
+                    height: 200.0,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
+            else
+              const Icon(Icons.image_not_supported, size: 60),
+
+            const SizedBox(height: 8.0), // Espacement sous l'image
+
+            // "Voir plus" après la description
+            TextButton(
+              onPressed: onTap, // Appel à la fonction onTap
+              child:
+                  const Text("Voir plus", style: TextStyle(color: Colors.blue)),
             ),
+
+            // Bouton de message
             Align(
               alignment: Alignment.centerRight,
               child: IconButton(
@@ -112,61 +133,14 @@ class DeclarationCard extends StatelessWidget {
         );
 
       case "Moto":
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildRow("Marque", declaration['marque'] ?? 'Inconnue'),
-            buildRow("Modèle", declaration['modele'] ?? 'Inconnu'),
-            buildRow("Plaque", declaration['plaque'] ?? 'Inconnue'),
-            buildRow("Lieu", declaration['lieu'] ?? 'Inconnu'),
-            buildRow("Date de perte", declaration['datperte'] ?? 'Inconnue'),
-            buildRow("Contact", declaration['numero'] ?? 'Non fourni'),
-            const SizedBox(height: 8),
-            Text(
-              declaration['description'] ?? 'Pas de description',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-                fontStyle: FontStyle.italic,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        );
-
       case "Telephone":
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildRow("Marque", declaration['marque'] ?? 'Inconnue'),
-            buildRow("Modèle", declaration['modele'] ?? 'Inconnu'),
-            buildRow("IMEI", declaration['imei'] ?? 'Inconnu'),
-            buildRow("Lieu", declaration['lieu'] ?? 'Inconnu'),
-            buildRow("Date de perte", declaration['datperte'] ?? 'Inconnue'),
-            buildRow("Contact", declaration['numero'] ?? 'Non fourni'),
-            const SizedBox(height: 8),
-            Text(
-              declaration['description'] ?? 'Pas de description',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-                fontStyle: FontStyle.italic,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        );
-
       case "Ordinateur":
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             buildRow("Marque", declaration['marque'] ?? 'Inconnue'),
             buildRow("Modèle", declaration['modele'] ?? 'Inconnu'),
-            buildRow(
-                "Numéro de série", declaration['numseriemac'] ?? 'Inconnu'),
+            buildRow("Plaque", declaration['plaque'] ?? 'Inconnue'),
             buildRow("Lieu", declaration['lieu'] ?? 'Inconnu'),
             buildRow("Date de perte", declaration['datperte'] ?? 'Inconnue'),
             buildRow("Contact", declaration['numero'] ?? 'Non fourni'),
