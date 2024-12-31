@@ -1,3 +1,4 @@
+import 'package:appodcgroupe/widgets/declaration_list.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'main.dart';
@@ -5,7 +6,7 @@ import 'fonctions.dart';
 import 'message.dart';
 
 class AccueilPage extends StatefulWidget {
-  const AccueilPage({Key? key}) : super(key: key);
+  const AccueilPage({super.key});
 
   @override
   State<AccueilPage> createState() => _AccueilPageState();
@@ -40,15 +41,15 @@ class _AccueilPageState extends State<AccueilPage> {
   int _bottomNavIndex = 0;
   int selectedCategoryIndex = 0;
 
-
   @override
   void initState() {
     super.initState();
-    _bottomNavIndex=0;
+    _bottomNavIndex = 0;
 
     // Charger les données pour la catégorie par défaut ("Tous")
     _loadInitialDeclarations();
   }
+
   void _loadInitialDeclarations() async {
     setState(() {
       isLoading = true;
@@ -67,7 +68,6 @@ class _AccueilPageState extends State<AccueilPage> {
       });
     }
   }
-
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,392 +97,56 @@ class _AccueilPageState extends State<AccueilPage> {
           ),
           // Liste des catégories
           SizedBox(
-          height: MediaQuery.of(context).size.width * 0.03 + 24,
-          child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: categories.length,
-          itemBuilder: (context, index) {
-          bool isSelected = index == selectedCategoryIndex;
-          return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0), // Ajoute de l'espace entre chaque catégorie
-          child: GestureDetector(
-          onTap: () async {
-          setState(() {
-          selectedCategoryIndex = index;
-          isLoading = true;
-          });
-          try {
-          var fetchedDeclarations =
-          await fetchDeclarationsByCategory(categories[index]);
-          setState(() {
-          declarations = fetchedDeclarations;
-          isLoading = false;
-          });
-          } catch (e) {
-          print("Erreur: $e");
-          setState(() => isLoading = false);
-          }
-          },
-          child: Chip(
-          label: Text(categories[index]),
-          padding: const EdgeInsets.all(0.02),
-          backgroundColor: isSelected ? Colors.black : Colors.grey[200],
-          labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.black,
-          ),
-          ),
-          ),
-          );
-          },
-          ),
+            height: MediaQuery.of(context).size.width * 0.03 + 24,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                bool isSelected = index == selectedCategoryIndex;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal:
+                          8.0), // Ajoute de l'espace entre chaque catégorie
+                  child: GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        selectedCategoryIndex = index;
+                        isLoading = true;
+                      });
+                      try {
+                        var fetchedDeclarations =
+                            await fetchDeclarationsByCategory(
+                                categories[index]);
+                        setState(() {
+                          declarations = fetchedDeclarations;
+                          isLoading = false;
+                        });
+                      } catch (e) {
+                        print("Erreur: $e");
+                        setState(() => isLoading = false);
+                      }
+                    },
+                    child: Chip(
+                      label: Text(categories[index]),
+                      padding: const EdgeInsets.all(0.02),
+                      backgroundColor:
+                          isSelected ? Colors.black : Colors.grey[200],
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
           // Liste des déclarations
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : declarations.isEmpty
-                ? const Center(child: Text("Aucune déclaration trouvée."))
-                : ListView.builder(
-              itemCount: declarations.length,
-              itemBuilder: (context, index) {
-                final declaration = declarations[index];
-                String? imageUrl = declaration['imageUrl'];
-                final String object = declaration['objectid'];
-                final String usere = declaration['userid'];
-
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                      vertical: 12.0, horizontal: 16.0),
-                  elevation: 4.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Affichage de l'image
-                        (imageUrl != null && imageUrl.isNotEmpty)
-                            ? ClipRRect(
-                          borderRadius:
-                          BorderRadius.circular(12.0),
-                          child: Image.network(
-                            imageUrl,
-                            width: 160,
-                            height: 320,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                            : const Icon(Icons.image_not_supported,
-                            size: 60),
-                        const SizedBox(width: 16.0),
-                        // Texte des détails
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              declaration['categorie']=="Personne"?
-                              Column(
-                                children: [
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Nom: ${declaration['nom'] ?? 'Inconnu'}',
-                                  ),
-                                  Text(
-                                    'Age: ${declaration['age'] ?? 'Inconnu'}',
-                                  ),
-                                  Text(
-                                    'Genre: ${declaration['genre'] ?? 'Inconnu'}',
-                                  ),
-                                  Text(
-                                    'Lieu: ${declaration['lieu'] ?? 'Inconnu'}',
-                                  ),
-
-                                  Text(
-                                    'Date disparution: ${declaration['datperte'] ?? 'Inconnu'}',
-                                  ),Text(
-                                    'Region: ${declaration['region'] ?? 'Inconnue'}',
-                                  ),Text(
-                                    'Province: ${declaration['province'] ?? 'Inconnue'}',
-                                  ),
-                                  Text(
-                                    'Statut: ${declaration['status'] ?? 'Non défini'}',
-                                  ),
-                                  Text(
-                                    'Contact: ${declaration['numero'] ?? 'Non fourni'}',
-
-                                  ),Text(
-                                    declaration['description'] ??
-                                        'Pas de description',
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                    maxLines: 5,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  // Bouton pour la messagerie
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: IconButton(
-                                      onPressed: () {
-
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => MessagingPage(
-                                              objectId: object,
-                                              userId: usere,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      icon: const Icon(Icons.message, color: Colors.black),
-                                    ),
-
-                                  ),
-                                ],
-                              ):declaration['categorie']=="Moto"?
-                              Column(
-                  children: [
-                      const SizedBox(height: 8),
-                  Text(
-                    'Marque: ${declaration['marque'] ?? 'Inconnu'}',
-                  ),
-                  Text(
-                    'Modele: ${declaration['modele'] ?? 'Inconnu'}',
-                  ),
-                  Text(
-                    'Plaque: ${declaration['plaque'] ?? 'Inconnu'}',
-                  ),
-                  Text(
-                    'Lieu: ${declaration['lieu'] ?? 'Inconnu'}',
-                  ),
-
-                  Text(
-                    'Date de perte: ${declaration['datperte'] ?? 'Inconnu'}',
-                  ),Text(
-                  'Region: ${declaration['region'] ?? 'Inconnue'}',
-                ),Text(
-                  'Province: ${declaration['province'] ?? 'Inconnue'}',
-                ),
-                  Text(
-                    'Statut: ${declaration['status'] ?? 'Non défini'}',
-                  ),
-                  Text(
-                    'Contact: ${declaration['numero'] ?? 'Non fourni'}'
-
-                  ),Text(
-                  declaration['description'] ??
-                      'Pas de description',
-                  style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold),
-                  maxLines: 5,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                  // Bouton pour la messagerie
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: ()  {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MessagingPage(
-                              objectId: object,
-                              userId: usere,
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.message, color: Colors.black),
-                    ),
-
-                  ),
-                  ], ):declaration["categorie"]=="Telephone"?
-                              Column(
-                                children: [
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Marque: ${declaration['marque'] ?? 'Inconnu'}',
-                                  ),
-                                  Text(
-                                    'IMEI:${declaration['imei'] ??'Inconnu'}',
-                                  ),
-                                  Text(
-                                    'Modele: ${declaration['modele'] ?? 'Inconnu'}',
-                                  ),
-                                  Text(
-                                    'Lieu: ${declaration['lieu'] ?? 'Inconnu'}',
-                                  ),
-
-                                  Text(
-                                    'Date de perte: ${declaration['datperte'] ?? 'Inconnu'}',
-                                  ),Text(
-                                    'Region: ${declaration['region'] ?? 'Inconnue'}',
-                                  ),Text(
-                                    'Province: ${declaration['province'] ?? 'Inconnue'}',
-                                  ),
-                                  Text(
-                                    'Statut: ${declaration['status'] ?? 'Non défini'}',
-                                  ),
-                                  Text(
-                                    'Contact: ${declaration['numero'] ?? 'Non fourni'}',
-                                  ),
-                                  Text(
-                                    declaration['description'] ??
-                                        'Pas de description',
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                    maxLines: 5,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  // Bouton pour la messagerie
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: IconButton(
-                                      onPressed: ()  {
-
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => MessagingPage(
-                                              objectId: object,
-                                              userId: usere,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      icon: const Icon(Icons.message, color: Colors.black),
-                                    ),
-
-                                  ),
-                                ],
-                              ):declaration["categorie"]=="Ordinateur"?
-                              Column(
-                                children: [
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Marque: ${declaration['marque'] ?? 'Inconnu'}',
-                                  ),
-                                  Text(
-                                    'Modele: ${declaration['modele'] ?? 'Inconnu'}',
-                                  ),
-                                  Text('Numero de serie:${declaration['numseriemac']??'inconnu'}'
-                                  ),
-                                  Text(
-                                    'Lieu: ${declaration['lieu'] ?? 'Inconnu'}',
-                                  ),
-
-                                  Text(
-                                    'Date de perte: ${declaration['datperte'] ?? 'Inconnu'}',
-                                  ),Text(
-                                    'Region: ${declaration['region'] ?? 'Inconnue'}',
-                                  ),Text(
-                                    'Province: ${declaration['province'] ?? 'Inconnue'}',
-                                  ),
-                                  Text(
-                                    'Statut: ${declaration['status'] ?? 'Non défini'}',
-                                  ),
-                                  Text(
-                                    'Contact: ${declaration['numero'] ?? 'Non fourni'}',
-                                  ),
-                                  Text(
-                                    declaration['description'] ??
-                                        'Pas de description',
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                    maxLines: 5,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  // Bouton pour la messagerie
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: IconButton(
-                                      onPressed: ()  {
-
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => MessagingPage(
-                                              objectId: object,
-                                              userId: usere,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      icon: const Icon(Icons.message, color: Colors.black),
-                                    ),
-
-                                  ),
-                                ],
-                              ):Column(
-                                children: [
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Date de perte: ${declaration['datperte'] ?? 'Inconnu'}',
-                                  ),
-                                  Text(
-                                    'Lieu de perte: ${declaration['lieu'] ?? 'Inconnu'}',
-                                  ),
-                                  Text(
-                                    'Region: ${declaration['region'] ?? 'Inconnue'}',
-                                  ),Text(
-                                    'Province: ${declaration['province'] ?? 'Inconnue'}',
-                                  ),
-                                  Text(
-                                    'Statut: ${declaration['status'] ?? 'Non défini'}',
-                                  ),
-
-                                  Text(
-                                    'Contact: ${declaration['numero'] ?? 'Non fourni'}',
-
-                                  ),Text(
-                                    declaration['description'] ??
-                                        'Pas de description',
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                    maxLines: 5,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  // Bouton pour la messagerie
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: IconButton(
-
-                                      onPressed: () {
-
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => MessagingPage(
-                                              objectId: object,
-                                              userId: usere,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      icon: const Icon(Icons.message, color: Colors.black),
-                                    ),
-
-                                  ),
-                                ],
-                              )
-                            ],
-
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                    ? const Center(child: Text("Aucune déclaration trouvée."))
+                    : DeclarationList(declarations: declarations),
           ),
         ],
       ),
