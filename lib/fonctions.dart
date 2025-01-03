@@ -236,6 +236,7 @@ Future<void> saveDeclarationWithImage({
   required String genre,
   required String numero,
   required String status,
+  required String prime,
   required String datperte,
 }) async {
   try {
@@ -266,6 +267,7 @@ Future<void> saveDeclarationWithImage({
       'numserimac':numseriemac,
       'numero': numero,
       'status': status,
+      'prime': prime,
       'datperte': datperte,
       'userid': userid,         // ID de l'utilisateur connecté
       'imageUrl': imageFile,    // URL ou référence de l'image

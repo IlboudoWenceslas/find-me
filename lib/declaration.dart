@@ -6,7 +6,7 @@ import 'fonctions.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter/services.dart';
-
+import 'Transactionpage.dart';
 import 'main.dart';
 
 
@@ -23,6 +23,8 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
   bool istelephone=false;
   bool isordinateur=false;
   int? age=0;
+  int? montant;
+  bool isprime=false;
 
   TextEditingController dateController = TextEditingController();
   TextEditingController numeroController = TextEditingController();
@@ -40,6 +42,7 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController imeicontroller=TextEditingController();
   TextEditingController numserimaccontroller=TextEditingController();
+  TextEditingController primeController=TextEditingController();
 
   final List<String> categories = [
     'Moto',
@@ -67,8 +70,19 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
   ];
   int _bottomNavIndex = 0;
   int selectedCategoryIndex = 0;
+  void proceedToTransaction() {
+    if (isprime && int.tryParse(primeController.text) != null && int.parse(primeController.text) > 500) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TransactionPage(
+            primeAmount: int.parse(primeController.text),
+          ),
+        ),
+      );
+    }}
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -401,6 +415,7 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                             numseriemac: numserimaccontroller.text,
                             age: ageController.text,
                             genre:sexeController.text,
+                            prime: primeController.text,
                             dateperte: '',
 
 
@@ -576,9 +591,41 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                     ),
 
                     SizedBox(height: 20),
+                    CheckboxListTile(
+                      title: Text("Cochez pour ajouter une prime"), // Texte à afficher à côté de la case
+                      value: isprime,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isprime = value ?? false;
+                        });
+                      },
+                    ),
+                if (isprime) // Affiche le champ si la case est cochée
+                  TextFormField(
+                    controller: primeController,
+                    decoration: InputDecoration(
+                      labelText: 'Montant de la prime',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number, // Clavier numérique
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly, // Accepte uniquement les chiffres
+                    ],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer le montant de la prime';
+                      }
+                       montant = int.tryParse(value);
+                      if (montant == null || montant! < 500) {
+                        return 'Veuillez entrer un montant supérieur ou égal à 500';
+                      }
+                      return null;
+                    },
+                  ),
                     SizedBox(height: 15),
                     TextFormField(
                       controller: descriptionController,
+
                       maxLines: 4,
                       decoration: InputDecoration(
                         labelText: "Description de l'objet perdu",
@@ -592,9 +639,22 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                       },
                     ),
                     // Bouton enregistrer
-                    ElevatedButton(
+                    isprime?ElevatedButton(onPressed: proceedToTransaction,child: Text("Continuer"),)
+                        :ElevatedButton(
                       onPressed: () async {
-                        if (selectedImageFile != null && descriptionController.text.isNotEmpty&&categorieController.text.isNotEmpty&&provinceController.text.isNotEmpty&&regionController.text.isNotEmpty&&lieuPerteController.text.isNotEmpty&&dateController.text.isNotEmpty&&numeroController.text.isNotEmpty&&numeroController.text.length==8&&modeleController.text.isNotEmpty&&marqueController.text.isNotEmpty&&plaqueController.text.length>3) {
+                        if (selectedImageFile != null &&
+                            descriptionController.text.isNotEmpty &&
+                            categorieController.text.isNotEmpty &&
+                            provinceController.text.isNotEmpty &&
+                            regionController.text.isNotEmpty &&
+                            lieuPerteController.text.isNotEmpty &&
+                            dateController.text.isNotEmpty &&
+                            numeroController.text.isNotEmpty &&
+                            numeroController.text.length == 8 &&
+                            modeleController.text.isNotEmpty &&
+                            marqueController.text.isNotEmpty &&
+                            plaqueController.text.length > 0 && // Correction ici
+                            (montant != null && montant! >= 500 || montant == null))  {
                           showDialog(
                             context: context,
                             builder: (context) => Center(child: CircularProgressIndicator()),
@@ -618,6 +678,7 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                             numseriemac: numserimaccontroller.text,
                             age:ageController.text,
                             genre:sexeController.text,
+                            prime: primeController.text,
                             status:'Wanted',
                             dateperte: '',
                           );
@@ -792,6 +853,38 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                     ),
 
                     SizedBox(height: 20),
+                    SizedBox(height: 20),
+                    CheckboxListTile(
+                      title: Text("Cochez pour ajouter une prime"), // Texte à afficher à côté de la case
+                      value: isprime,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isprime = value ?? false;
+                        });
+                      },
+                    ),
+                    if (isprime) // Affiche le champ si la case est cochée
+                      TextFormField(
+                        controller: primeController,
+                        decoration: InputDecoration(
+                          labelText: 'Montant de la prime',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number, // Clavier numérique
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly, // Accepte uniquement les chiffres
+                        ],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez entrer le montant de la prime';
+                          }
+                           montant = int.tryParse(value);
+                          if (montant == null || montant! < 500) {
+                            return 'Veuillez entrer un montant supérieur ou égal à 500';
+                          }
+                          return null;
+                        },
+                      ),
                     SizedBox(height: 15),
                     TextFormField(
                       controller: descriptionController,
@@ -808,9 +901,10 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                       },
                     ),
                     // Bouton enregistrer
-                    ElevatedButton(
+                    isprime?ElevatedButton(onPressed: proceedToTransaction,child: Text("Continuer"),)
+                        :ElevatedButton(
                       onPressed: () async {
-                        if (selectedImageFile != null && descriptionController.text.isNotEmpty&&categorieController.text.isNotEmpty&&provinceController.text.isNotEmpty&&regionController.text.isNotEmpty&&lieuPerteController.text.isNotEmpty&&dateController.text.isNotEmpty&&numeroController.text.isNotEmpty&&numeroController.text.length==8&&modeleController.text.isNotEmpty&&marqueController.text.isNotEmpty&&imeicontroller.text.length==15) {
+                        if (selectedImageFile != null && descriptionController.text.isNotEmpty&&categorieController.text.isNotEmpty&&provinceController.text.isNotEmpty&&regionController.text.isNotEmpty&&lieuPerteController.text.isNotEmpty&&dateController.text.isNotEmpty&&numeroController.text.isNotEmpty&&numeroController.text.length==8&&modeleController.text.isNotEmpty&&marqueController.text.isNotEmpty&&imeicontroller.text.length==15 &&(montant != null && montant ! >= 500 || montant == null)) {
                           showDialog(
                             context: context,
                             builder: (context) => Center(child: CircularProgressIndicator()),
@@ -833,6 +927,7 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                             imei: imeicontroller.text,
                             numseriemac: numserimaccontroller.text,
                             genre:sexeController.text,
+                            prime: primeController.text,
                             status:'Wanted',
                             age: ageController.text,
                             dateperte: '',
@@ -1007,6 +1102,39 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                     ),
 
                     SizedBox(height: 20),
+                    SizedBox(height: 20),
+                    CheckboxListTile(
+                      title: Text("Cochez pour ajouter une prime"), // Texte à afficher à côté de la case
+                      value: isprime,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isprime = value ?? false;
+                        });
+                      },
+                    ),
+                    if (isprime) // Affiche le champ si la case est cochée
+                      TextFormField(
+                        controller: primeController,
+                        decoration: InputDecoration(
+                          labelText: 'Montant de la prime',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number, // Clavier numérique
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly, // Accepte uniquement les chiffres
+                        ],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez entrer le montant de la prime';
+                          }
+                           montant = int.tryParse(value);
+                          if (montant == null || montant! < 500) {
+                            return 'Veuillez entrer un montant supérieur ou égal à 500';
+                          }
+                          return null;
+                        },
+                      ),
+
                     SizedBox(height: 15),
                     TextFormField(
                       controller: descriptionController,
@@ -1023,9 +1151,11 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                       },
                     ),
                     // Bouton enregistrer
-                    ElevatedButton(
+
+                    isprime?ElevatedButton(onPressed: proceedToTransaction,child: Text("Continuer"),)
+                        :ElevatedButton(
                       onPressed: () async {
-                        if (selectedImageFile != null && descriptionController.text.isNotEmpty&&categorieController.text.isNotEmpty&&provinceController.text.isNotEmpty&&regionController.text.isNotEmpty&&lieuPerteController.text.isNotEmpty&&dateController.text.isNotEmpty&&numeroController.text.isNotEmpty&&numeroController.text.length==8&&modeleController.text.isNotEmpty&&marqueController.text.isNotEmpty&&numserimaccontroller.text.length>=7) {
+                        if (selectedImageFile != null && descriptionController.text.isNotEmpty&&categorieController.text.isNotEmpty&&provinceController.text.isNotEmpty&&regionController.text.isNotEmpty&&lieuPerteController.text.isNotEmpty&&dateController.text.isNotEmpty&&numeroController.text.isNotEmpty&&numeroController.text.length==8&&modeleController.text.isNotEmpty&&marqueController.text.isNotEmpty&&numserimaccontroller.text.length>=7 &&(montant !=null && montant! >=500||montant ==null)) {
                           showDialog(
                             context: context,
                             builder: (context) => Center(child: CircularProgressIndicator()),
@@ -1049,6 +1179,7 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                             numseriemac: numserimaccontroller.text,
                             genre:sexeController.text,
                             status:'Wanted',
+                            prime: primeController.text,
                             age: ageController.text,
                             dateperte: '',
                           );
@@ -1178,6 +1309,39 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                             return null;
                           },
                         ),
+                        SizedBox(height: 15,),
+                        SizedBox(height: 20),
+                        CheckboxListTile(
+                          title: Text("Cochez pour ajouter une prime"), // Texte à afficher à côté de la case
+                          value: isprime,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              isprime = value ?? false;
+                            });
+                          },
+                        ),
+                        if (isprime) // Affiche le champ si la case est cochée
+                          TextFormField(
+                            controller: primeController,
+                            decoration: InputDecoration(
+                              labelText: 'Montant de la prime',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.number, // Clavier numérique
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly, // Accepte uniquement les chiffres
+                            ],
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Veuillez entrer le montant de la prime';
+                              }
+                              int? montant = int.tryParse(value);
+                              if (montant == null || montant < 500) {
+                                return 'Veuillez entrer un montant supérieur ou égal à 500';
+                              }
+                              return null;
+                            },
+                          ),
 
 
                         SizedBox(height: 15),
@@ -1196,9 +1360,13 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                           },
                         ),SizedBox(height: 20),
                         // Bouton enregistrer
-                        ElevatedButton(
+
+                        isprime?ElevatedButton(onPressed: proceedToTransaction,child: Text("Continuer"),)
+
+
+                            :ElevatedButton(
                           onPressed: () async {
-                            if (selectedImageFile != null && descriptionController.text.isNotEmpty&&categorieController.text.isNotEmpty&&provinceController.text.isNotEmpty&&regionController.text.isNotEmpty&&lieuPerteController.text.isNotEmpty&&dateController.text.isNotEmpty&&numeroController.text.isNotEmpty&&numeroController.text.length==8) {
+                            if (selectedImageFile != null && descriptionController.text.isNotEmpty&&categorieController.text.isNotEmpty&&provinceController.text.isNotEmpty&&regionController.text.isNotEmpty&&lieuPerteController.text.isNotEmpty&&dateController.text.isNotEmpty&&numeroController.text.isNotEmpty&&numeroController.text.length==8 && (montant !=null && montant ! >= 500||montant ==null)) {
                               showDialog(
                                 context: context,
                                 builder: (context) => Center(child: CircularProgressIndicator()),
@@ -1224,6 +1392,7 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                                 numseriemac: numserimaccontroller.text,
                                 genre:sexeController.text,
                                 status:'Wanted',
+                                prime: primeController.text,
                                 age: ageController.text,
                                 dateperte: '',
 
@@ -1254,7 +1423,10 @@ class _NouvelleDeclarationState extends State<NouvelleDeclaration> {
                             }
                           },
                           child: Text('Enregistrer'),
-                        ),
+                        )
+
+
+
                       ],
                     ),
 
