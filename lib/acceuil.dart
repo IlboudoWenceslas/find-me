@@ -24,6 +24,8 @@ class _AccueilPageState extends State<AccueilPage> {
     'Ordinateur',
     'Telephone',
   ];
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> filteredDeclarations = []; // Déclarations filtrées
 
   List<Map<String, dynamic>> declarations = []; // Données récupérées
   // String object='';
@@ -40,14 +42,17 @@ class _AccueilPageState extends State<AccueilPage> {
 
   int _bottomNavIndex = 0;
   int selectedCategoryIndex = 0;
-
   @override
   void initState() {
     super.initState();
-    _bottomNavIndex = 0;
-
-    // Charger les données pour la catégorie par défaut ("Tous")
     _loadInitialDeclarations();
+    _searchController.addListener(_filterDeclarations);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _loadInitialDeclarations() async {
@@ -59,6 +64,7 @@ class _AccueilPageState extends State<AccueilPage> {
       var fetchedDeclarations = await fetchDeclarationsByCategory('Tous');
       setState(() {
         declarations = fetchedDeclarations;
+        filteredDeclarations = fetchedDeclarations;
         isLoading = false;
       });
     } catch (e) {
@@ -69,6 +75,26 @@ class _AccueilPageState extends State<AccueilPage> {
     }
   }
 
+  void _filterDeclarations() {
+    String query = _searchController.text.toLowerCase();
+    if (query.isEmpty) {
+      setState(() {
+        filteredDeclarations = declarations;
+      });
+      return;
+    }
+
+    setState(() {
+      filteredDeclarations = declarations.where((declaration) {
+        return (declaration['plaque']?.toLowerCase().startsWith(query) ?? false) ||
+            (declaration['imei']?.toLowerCase().startsWith(query) ?? false) ||
+            (declaration['nom']?.toLowerCase().startsWith(query) ?? false) ||
+            (declaration['numero']?.toLowerCase().startsWith(query) ?? false);
+      }).toList();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -83,8 +109,9 @@ class _AccueilPageState extends State<AccueilPage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
+              controller: _searchController,
               decoration: InputDecoration(
-                hintText: "Rechercher IMEI,Plaque,Numero de serie",
+                hintText: "Rechercher IMEI, Plaque, Nom ou Numéro",
                 prefixIcon: const Icon(Icons.search, color: Colors.black),
                 filled: true,
                 fillColor: Colors.grey[200],
@@ -104,9 +131,7 @@ class _AccueilPageState extends State<AccueilPage> {
               itemBuilder: (context, index) {
                 bool isSelected = index == selectedCategoryIndex;
                 return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal:
-                          8.0), // Ajoute de l'espace entre chaque catégorie
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: GestureDetector(
                     onTap: () async {
                       setState(() {
@@ -115,10 +140,10 @@ class _AccueilPageState extends State<AccueilPage> {
                       });
                       try {
                         var fetchedDeclarations =
-                            await fetchDeclarationsByCategory(
-                                categories[index]);
+                        await fetchDeclarationsByCategory(categories[index]);
                         setState(() {
                           declarations = fetchedDeclarations;
+                          filteredDeclarations = fetchedDeclarations;
                           isLoading = false;
                         });
                       } catch (e) {
@@ -130,7 +155,7 @@ class _AccueilPageState extends State<AccueilPage> {
                       label: Text(categories[index]),
                       padding: const EdgeInsets.all(0.02),
                       backgroundColor:
-                          isSelected ? Colors.black : Colors.grey[200],
+                      isSelected ? Colors.black : Colors.grey[200],
                       labelStyle: TextStyle(
                         color: isSelected ? Colors.white : Colors.black,
                       ),
@@ -144,9 +169,9 @@ class _AccueilPageState extends State<AccueilPage> {
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : declarations.isEmpty
-                    ? const Center(child: Text("Aucune déclaration trouvée."))
-                    : DeclarationList(declarations: declarations),
+                : filteredDeclarations.isEmpty
+                ? const Center(child: Text("Aucune déclaration trouvée."))
+                : DeclarationList(declarations: filteredDeclarations),
           ),
         ],
       ),
